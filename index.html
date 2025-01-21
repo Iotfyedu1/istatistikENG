@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Adventure Game</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #e0f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .scene {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .scene img {
+            max-width: 150px;
+            border-radius: 50%;
+        }
+
+        .dialogue {
+            max-width: 500px;
+            background: #f1f8e9;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .question {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .options button {
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .options button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .next {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .next button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+        }
+
+        .next button:hover {
+            background-color: #218838;
+        }
+
+        .start {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .start button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff9800;
+            color: white;
+            cursor: pointer;
+        }
+
+        .start button:hover {
+            background-color: #e68900;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="scene" id="scene">
+            <img src="villager.png" alt="Villager" id="villager">
+            <div class="dialogue" id="dialogue">
+                Welcome to DataLand! This village used to be peaceful, but now the villagers are facing big problems. Crops are not growing, water is running out, and they don’t know what to do. Can you use your knowledge to help us save the village? Are you ready to start this adventure?
+            </div>
+            <img src="hero.png" alt="Hero" id="hero">
+        </div>
+
+        <div class="start" id="start">
+            <button onclick="startGame()">Start the Mission</button>
+        </div>
+
+        <div class="question" id="quiz"></div>
+        <div class="message" id="message"></div>
+        <div class="next" id="next">
+            <button onclick="nextQuestion()">Next Task</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Task 1: The villagers measured the rain for the past four days: (2, 4, 6, 8). To plan the water tanks, they need to know the average rainfall. Can you calculate it?",
+                options: ["4", "5", "6", "7"],
+                answer: "5",
+                explanation: "We added the rainfall (2 + 4 + 6 + 8 = 20) and divided by the number of days (4). The average is 5!",
+                dialogue: "We need to find the average rainfall to plan our water storage. Can you help us?",
+            },
+            {
+                question: "Task 2: The crops in the village have different heights: (1, 3, 3, 6, 7, 8, 9). Which crop height is in the middle?",
+                options: ["3", "6", "7", "5"],
+                answer: "6",
+                explanation: "When we arrange the crop heights, the middle value is 6.",
+                dialogue: "Our crops are growing unevenly. If we know the middle value, we can protect them better.",
+            },
+            {
+                question: "Task 3: The villagers planted seeds, but some were planted more than others. The data is: (2, 2, 2, 3, 3, 4, 5). Which seed was planted the most?",
+                options: ["2", "3", "4", "5"],
+                answer: "2",
+                explanation: "The number 2 appears the most, so it’s the answer!",
+                dialogue: "If we know which seeds were planted the most, we can plan better.",
+            },
+            {
+                question: "Task 4: The villagers measured daily temperatures: (10, 15, 15, 18, 20, 22, 22, 25). What is the highest and lowest temperature?",
+                options: ["Lowest: 10, Highest: 25", "Lowest: 15, Highest: 22", "Lowest: 10, Highest: 22", "Lowest: 15, Highest: 25"],
+                answer: "Lowest: 10, Highest: 25",
+                explanation: "The lowest temperature is 10 and the highest is 25.",
+                dialogue: "We need to know the hottest and coldest days to plan better for the village.",
+            }
+        ];
+
+        let currentQuestion = 0;
+
+        function startGame() {
+            document.getElementById("scene").style.display = "none";
+            document.getElementById("start").style.display = "none";
+            showQuestion();
+            document.getElementById("quiz").style.display = "block";
+        }
+
+        function showQuestion() {
+            const quizDiv = document.getElementById("quiz");
+            const question = questions[currentQuestion];
+
+            quizDiv.innerHTML = `<h2>${question.question}</h2>`;
+            quizDiv.innerHTML += `<p><em>${question.dialogue}</em></p>`;
+
+            const options = question.options.map(option => {
+                return `<button onclick="checkAnswer('${option}')">${option}</button>`;
+            }).join("");
+
+            quizDiv.innerHTML += `<div class="options">${options}</div>`;
+        }
+
+        function checkAnswer(selected) {
+            const messageDiv = document.getElementById("message");
+            const nextDiv = document.getElementById("next");
+
+            if (selected === questions[currentQuestion].answer) {
+                messageDiv.innerHTML = `Correct! ${questions[currentQuestion].explanation}`;
+                messageDiv.style.backgroundColor = "#d4edda";
+                messageDiv.style.color = "#155724";
+            } else {
+                messageDiv.innerHTML = `Wrong! ${questions[currentQuestion].explanation}`;
+                messageDiv.style.backgroundColor = "#f8d7da";
+                messageDiv.style.color = "#721c24";
+            }
+
+            messageDiv.style.display = "block";
+            nextDiv.style.display = "block";
+        }
+
+        function nextQuestion() {
+            const messageDiv = document.getElementById("message");
+            const nextDiv = document.getElementById("next");
+
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+                messageDiv.style.display = "none";
+                nextDiv.style.display = "none";
+            } else {
+                document.getElementById("quiz").innerHTML = `<h2>Congratulations! You helped the villagers save their crops, plan their water storage, and prepare for a better future. You are a true hero!</h2>`;
+                messageDiv.style.display = "none";
+                nextDiv.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
